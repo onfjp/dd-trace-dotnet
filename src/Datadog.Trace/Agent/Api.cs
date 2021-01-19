@@ -134,10 +134,10 @@ namespace Datadog.Trace.Agent
         private static IApiRequestFactory CreateRequestFactory()
         {
 #if NETCOREAPP
-            Log.Information("Using {FactoryType} for trace transport.", nameof(HttpClientRequestFactory));
+            Log.Debug("Using {FactoryType} for trace transport.", nameof(HttpClientRequestFactory));
             return new HttpClientRequestFactory();
 #else
-            Log.Information("Using {FactoryType} for trace transport.", nameof(ApiWebRequestFactory));
+            Log.Debug("Using {FactoryType} for trace transport.", nameof(ApiWebRequestFactory));
             return new ApiWebRequestFactory();
 #endif
         }

@@ -523,7 +523,7 @@ namespace Datadog.Trace.ClrProfiler.Emit
 
             if (methods.Length == 1)
             {
-                Log.Information($"Resolved by name and namespaceName filters ({logDetail})");
+                Log.Debug($"Resolved by name and namespaceName filters ({logDetail})");
                 return methods[0];
             }
 
@@ -534,7 +534,7 @@ namespace Datadog.Trace.ClrProfiler.Emit
 
             if (methods.Length == 1)
             {
-                Log.Information($"Resolved by viable parameters ({logDetail})");
+                Log.Debug($"Resolved by viable parameters ({logDetail})");
                 return methods[0];
             }
 
@@ -545,7 +545,7 @@ namespace Datadog.Trace.ClrProfiler.Emit
 
             if (methods.Length == 1)
             {
-                Log.Information($"Resolved by viable generics ({logDetail})");
+                Log.Debug($"Resolved by viable generics ({logDetail})");
                 return methods[0];
             }
 
