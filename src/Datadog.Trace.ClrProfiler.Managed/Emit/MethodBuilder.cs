@@ -329,7 +329,7 @@ namespace Datadog.Trace.ClrProfiler.Emit
                 {
                     dynamicMethod.UnboxAny(underlyingParameterType);
                 }
-                else if (underlyingParameterType != delegateParameterType)
+                else if (!underlyingParameterType.IsValueType && underlyingParameterType != delegateParameterType)
                 {
                     dynamicMethod.CastClass(underlyingParameterType);
                 }

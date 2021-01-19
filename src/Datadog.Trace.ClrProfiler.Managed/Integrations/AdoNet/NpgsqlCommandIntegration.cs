@@ -88,7 +88,7 @@ namespace Datadog.Trace.ClrProfiler.Integrations.AdoNet
         /// Instrumentation wrapper for SqlCommand.ExecuteReader().
         /// </summary>
         /// <param name="command">The object referenced by this in the instrumented method.</param>
-        /// <param name="behavior">The <see cref="CommandBehavior"/> value used in the original method call.</param>
+        /// <param name="behavior">The CommandBehavior value used in the original method call.</param>
         /// <param name="opCode">The OpCode used in the original method call.</param>
         /// <param name="mdToken">The mdToken of the original method call.</param>
         /// <param name="moduleVersionPtr">A pointer to the module version GUID.</param>
@@ -108,18 +108,17 @@ namespace Datadog.Trace.ClrProfiler.Integrations.AdoNet
             long moduleVersionPtr)
         {
             const string methodName = AdoNetConstants.MethodNames.ExecuteReader;
-            Func<object, CommandBehavior, object> instrumentedMethod;
-            var commandBehavior = (CommandBehavior)behavior;
+            Func<object, int, object> instrumentedMethod;
 
             try
             {
                 var targetType = command.GetInstrumentedType(NpgsqlCommandTypeName);
 
                 instrumentedMethod =
-                    MethodBuilder<Func<object, CommandBehavior, object>>
+                    MethodBuilder<Func<object, int, object>>
                        .Start(moduleVersionPtr, mdToken, opCode, methodName)
                        .WithConcreteType(targetType)
-                       .WithParameters(commandBehavior)
+                       .WithParameters(behavior)
                        .WithNamespaceAndNameFilters(NpgsqlDataReaderTypeName, AdoNetConstants.TypeNames.CommandBehavior)
                        .Build();
             }
@@ -140,7 +139,7 @@ namespace Datadog.Trace.ClrProfiler.Integrations.AdoNet
             {
                 try
                 {
-                    return instrumentedMethod(command, commandBehavior);
+                    return instrumentedMethod(command, behavior);
                 }
                 catch (Exception ex)
                 {
@@ -235,7 +234,7 @@ namespace Datadog.Trace.ClrProfiler.Integrations.AdoNet
         /// Instrumentation wrapper for SqlCommand.ExecuteReaderAsync().
         /// </summary>
         /// <param name="command">The object referenced by this in the instrumented method.</param>
-        /// <param name="behavior">The <see cref="CommandBehavior"/> value used in the original method call.</param>
+        /// <param name="behavior">The CommandBehavior value used in the original method call.</param>
         /// <param name="boxedCancellationToken">The <see cref="CancellationToken"/> value used in the original method call.</param>
         /// <param name="opCode">The OpCode used in the original method call.</param>
         /// <param name="mdToken">The mdToken of the original method call.</param>
@@ -260,7 +259,7 @@ namespace Datadog.Trace.ClrProfiler.Integrations.AdoNet
 
             return ExecuteReaderAsyncWithBehaviorAndCancellationInternal(
                 (DbCommand)command,
-                (CommandBehavior)behavior,
+                behavior,
                 cancellationToken,
                 opCode,
                 mdToken,
@@ -269,24 +268,24 @@ namespace Datadog.Trace.ClrProfiler.Integrations.AdoNet
 
         private static async Task<DbDataReader> ExecuteReaderAsyncWithBehaviorAndCancellationInternal(
             DbCommand command,
-            CommandBehavior commandBehavior,
+            int behavior,
             CancellationToken cancellationToken,
             int opCode,
             int mdToken,
             long moduleVersionPtr)
         {
             const string methodName = AdoNetConstants.MethodNames.ExecuteReaderAsync;
-            Func<DbCommand, CommandBehavior, CancellationToken, Task<DbDataReader>> instrumentedMethod;
+            Func<DbCommand, int, CancellationToken, Task<DbDataReader>> instrumentedMethod;
 
             try
             {
                 var targetType = command.GetInstrumentedType(NpgsqlCommandTypeName);
 
                 instrumentedMethod =
-                    MethodBuilder<Func<DbCommand, CommandBehavior, CancellationToken, Task<DbDataReader>>>
+                    MethodBuilder<Func<DbCommand, int, CancellationToken, Task<DbDataReader>>>
                        .Start(moduleVersionPtr, mdToken, opCode, methodName)
                        .WithConcreteType(targetType)
-                       .WithParameters(commandBehavior, cancellationToken)
+                       .WithParameters(behavior, cancellationToken)
                        .WithNamespaceAndNameFilters(ClrNames.GenericTask, AdoNetConstants.TypeNames.CommandBehavior, ClrNames.CancellationToken)
                        .Build();
             }
@@ -307,7 +306,7 @@ namespace Datadog.Trace.ClrProfiler.Integrations.AdoNet
             {
                 try
                 {
-                    return await instrumentedMethod(command, commandBehavior, cancellationToken).ConfigureAwait(false);
+                    return await instrumentedMethod(command, behavior, cancellationToken).ConfigureAwait(false);
                 }
                 catch (Exception ex)
                 {

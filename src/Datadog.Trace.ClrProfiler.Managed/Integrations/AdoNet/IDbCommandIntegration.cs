@@ -90,10 +90,10 @@ namespace Datadog.Trace.ClrProfiler.Integrations.AdoNet
         }
 
         /// <summary>
-        /// Instrumentation wrapper for <see cref="IDbCommand.ExecuteReader(CommandBehavior)"/>.
+        /// Instrumentation wrapper for IDbCommand.ExecuteReader(CommandBehavior).
         /// </summary>
         /// <param name="command">The object referenced "this" in the instrumented method.</param>
-        /// <param name="behavior">The <see cref="CommandBehavior"/> value used in the original method call.</param>
+        /// <param name="behavior">The CommandBehavior value used in the original method call.</param>
         /// <param name="opCode">The OpCode used in the original method call.</param>
         /// <param name="mdToken">The mdToken of the original method call.</param>
         /// <param name="moduleVersionPtr">A pointer to the module version GUID.</param>
@@ -120,18 +120,17 @@ namespace Datadog.Trace.ClrProfiler.Integrations.AdoNet
             long moduleVersionPtr)
         {
             const string methodName = AdoNetConstants.MethodNames.ExecuteReader;
-            var commandBehavior = (CommandBehavior)behavior;
-            Func<IDbCommand, CommandBehavior, IDataReader> instrumentedMethod;
+            Func<IDbCommand, int, IDataReader> instrumentedMethod;
 
             try
             {
                 var targetType = command.GetInstrumentedInterface(IDbCommandTypeName);
 
                 instrumentedMethod =
-                    MethodBuilder<Func<IDbCommand, CommandBehavior, IDataReader>>
+                    MethodBuilder<Func<IDbCommand, int, IDataReader>>
                        .Start(moduleVersionPtr, mdToken, opCode, methodName)
                        .WithConcreteType(targetType)
-                       .WithParameters(commandBehavior)
+                       .WithParameters(behavior)
                        .WithNamespaceAndNameFilters(AdoNetConstants.TypeNames.IDataReader, AdoNetConstants.TypeNames.CommandBehavior)
                        .Build();
             }
@@ -154,7 +153,7 @@ namespace Datadog.Trace.ClrProfiler.Integrations.AdoNet
             {
                 try
                 {
-                    return instrumentedMethod(dbCommand, commandBehavior);
+                    return instrumentedMethod(dbCommand, behavior);
                 }
                 catch (Exception ex)
                 {

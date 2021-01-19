@@ -93,10 +93,10 @@ namespace Datadog.Trace.ClrProfiler.Integrations.AdoNet
         }
 
         /// <summary>
-        /// Instrumentation wrapper for <see cref="DbCommand.ExecuteReader(CommandBehavior)"/>.
+        /// Instrumentation wrapper for DbCommand.ExecuteReader(CommandBehavior).
         /// </summary>
         /// <param name="command">The object referenced "this" in the instrumented method.</param>
-        /// <param name="behavior">The <see cref="CommandBehavior"/> value used in the original method call.</param>
+        /// <param name="behavior">The CommandBehavior value used in the original method call.</param>
         /// <param name="opCode">The OpCode used in the original method call.</param>
         /// <param name="mdToken">The mdToken of the original method call.</param>
         /// <param name="moduleVersionPtr">A pointer to the module version GUID.</param>
@@ -123,18 +123,17 @@ namespace Datadog.Trace.ClrProfiler.Integrations.AdoNet
             long moduleVersionPtr)
         {
             const string methodName = AdoNetConstants.MethodNames.ExecuteReader;
-            var commandBehavior = (CommandBehavior)behavior;
-            Func<DbCommand, CommandBehavior, DbDataReader> instrumentedMethod;
+            Func<DbCommand, int, DbDataReader> instrumentedMethod;
 
             try
             {
                 var targetType = command.GetInstrumentedType(DbCommandTypeName);
 
                 instrumentedMethod =
-                    MethodBuilder<Func<DbCommand, CommandBehavior, DbDataReader>>
+                    MethodBuilder<Func<DbCommand, int, DbDataReader>>
                        .Start(moduleVersionPtr, mdToken, opCode, methodName)
                        .WithConcreteType(targetType)
-                       .WithParameters(commandBehavior)
+                       .WithParameters(behavior)
                        .WithNamespaceAndNameFilters(AdoNetConstants.TypeNames.DbDataReader, AdoNetConstants.TypeNames.CommandBehavior)
                        .Build();
             }
@@ -157,7 +156,7 @@ namespace Datadog.Trace.ClrProfiler.Integrations.AdoNet
             {
                 try
                 {
-                    return instrumentedMethod(dbCommand, commandBehavior);
+                    return instrumentedMethod(dbCommand, behavior);
                 }
                 catch (Exception ex)
                 {
@@ -171,7 +170,7 @@ namespace Datadog.Trace.ClrProfiler.Integrations.AdoNet
         /// Instrumentation wrapper for <see cref="DbCommand.ExecuteReaderAsync()"/>.
         /// </summary>
         /// <param name="command">The object referenced by this in the instrumented method.</param>
-        /// <param name="behavior">The <see cref="CommandBehavior"/> value used in the original method call.</param>
+        /// <param name="behavior">The CommandBehavior value used in the original method call.</param>
         /// <param name="boxedCancellationToken">The <see cref="CancellationToken"/> value used in the original method call.</param>
         /// <param name="opCode">The OpCode used in the original method call.</param>
         /// <param name="mdToken">The mdToken of the original method call.</param>
@@ -201,7 +200,7 @@ namespace Datadog.Trace.ClrProfiler.Integrations.AdoNet
 
             return ExecuteReaderAsyncInternal(
                 command as DbCommand,
-                (CommandBehavior)behavior,
+                behavior,
                 cancellationToken,
                 opCode,
                 mdToken,
@@ -210,24 +209,24 @@ namespace Datadog.Trace.ClrProfiler.Integrations.AdoNet
 
         private static async Task<DbDataReader> ExecuteReaderAsyncInternal(
             DbCommand command,
-            CommandBehavior commandBehavior,
+            int behavior,
             CancellationToken cancellationToken,
             int opCode,
             int mdToken,
             long moduleVersionPtr)
         {
             const string methodName = AdoNetConstants.MethodNames.ExecuteReaderAsync;
-            Func<DbCommand, CommandBehavior, CancellationToken, Task<DbDataReader>> instrumentedMethod;
+            Func<DbCommand, int, CancellationToken, Task<DbDataReader>> instrumentedMethod;
 
             try
             {
                 var targetType = command.GetInstrumentedType(DbCommandTypeName);
 
                 instrumentedMethod =
-                    MethodBuilder<Func<DbCommand, CommandBehavior, CancellationToken, Task<DbDataReader>>>
+                    MethodBuilder<Func<DbCommand, int, CancellationToken, Task<DbDataReader>>>
                        .Start(moduleVersionPtr, mdToken, opCode, methodName)
                        .WithConcreteType(targetType)
-                       .WithParameters(commandBehavior, cancellationToken)
+                       .WithParameters(behavior, cancellationToken)
                        .WithNamespaceAndNameFilters(ClrNames.GenericTask, AdoNetConstants.TypeNames.CommandBehavior, ClrNames.CancellationToken)
                        .Build();
             }
@@ -248,7 +247,7 @@ namespace Datadog.Trace.ClrProfiler.Integrations.AdoNet
             {
                 try
                 {
-                    return await instrumentedMethod(command, commandBehavior, cancellationToken).ConfigureAwait(false);
+                    return await instrumentedMethod(command, behavior, cancellationToken).ConfigureAwait(false);
                 }
                 catch (Exception ex)
                 {
