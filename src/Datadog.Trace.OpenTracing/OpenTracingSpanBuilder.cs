@@ -37,7 +37,7 @@ namespace Datadog.Trace.OpenTracing
                 }
             }
 
-            Log.Debug("ISpanBuilder.AddReference is not implemented for other references than ChildOf by Datadog.Trace");
+            Log.Warning("ISpanBuilder.AddReference is not implemented for other references than ChildOf by Datadog.Trace");
             return this;
         }
 

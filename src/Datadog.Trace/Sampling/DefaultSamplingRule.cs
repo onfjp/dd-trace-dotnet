@@ -42,7 +42,7 @@ namespace Datadog.Trace.Sampling
                 return sampleRate;
             }
 
-            Log.Debug("Could not establish sample rate for trace {TraceId}", span.TraceId);
+            Log.Warning("Could not establish sample rate for trace {TraceId}", span.TraceId);
 
             return 1;
         }
