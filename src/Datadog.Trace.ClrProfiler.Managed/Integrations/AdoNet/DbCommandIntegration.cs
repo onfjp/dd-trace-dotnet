@@ -134,6 +134,7 @@ namespace Datadog.Trace.ClrProfiler.Integrations.AdoNet
                        .Start(moduleVersionPtr, mdToken, opCode, methodName)
                        .WithConcreteType(targetType)
                        .WithParameters(behavior)
+                       .SkipParameterValidations(true)
                        .WithNamespaceAndNameFilters(AdoNetConstants.TypeNames.DbDataReader, AdoNetConstants.TypeNames.CommandBehavior)
                        .Build();
             }
@@ -227,6 +228,7 @@ namespace Datadog.Trace.ClrProfiler.Integrations.AdoNet
                        .Start(moduleVersionPtr, mdToken, opCode, methodName)
                        .WithConcreteType(targetType)
                        .WithParameters(behavior, cancellationToken)
+                       .SkipParameterValidations(true, false)
                        .WithNamespaceAndNameFilters(ClrNames.GenericTask, AdoNetConstants.TypeNames.CommandBehavior, ClrNames.CancellationToken)
                        .Build();
             }

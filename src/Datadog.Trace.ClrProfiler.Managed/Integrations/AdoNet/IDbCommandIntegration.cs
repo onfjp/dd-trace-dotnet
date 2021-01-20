@@ -131,6 +131,7 @@ namespace Datadog.Trace.ClrProfiler.Integrations.AdoNet
                        .Start(moduleVersionPtr, mdToken, opCode, methodName)
                        .WithConcreteType(targetType)
                        .WithParameters(behavior)
+                       .SkipParameterValidations(true)
                        .WithNamespaceAndNameFilters(AdoNetConstants.TypeNames.IDataReader, AdoNetConstants.TypeNames.CommandBehavior)
                        .Build();
             }
