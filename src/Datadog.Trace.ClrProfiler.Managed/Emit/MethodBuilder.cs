@@ -22,6 +22,7 @@ namespace Datadog.Trace.ClrProfiler.Emit
         private static readonly Vendors.Serilog.ILogger Log = DatadogLogging.GetLogger(typeof(MethodBuilder<TDelegate>));
 
         private static readonly Type[] EmptyTypeArray = new Type[0];
+        private static readonly bool[] EmptyBoolArray = new bool[0];
 
         /// <summary>
         /// Feature flag used primarily for forcing testing of the token lookup strategy.
@@ -47,6 +48,7 @@ namespace Datadog.Trace.ClrProfiler.Emit
         private Type _concreteType;
         private string _concreteTypeName;
         private Type[] _parameters = EmptyTypeArray;
+        private bool[] _skipParameterValidations = EmptyBoolArray;
         private Type[] _explicitParameterTypes = null;
         private string[] _namespaceAndNameFilter = null;
         private Type[] _declaringTypeGenerics;
@@ -169,6 +171,24 @@ namespace Datadog.Trace.ClrProfiler.Emit
         {
             _explicitParameterTypes = types;
             return this;
+        }
+
+        public MethodBuilder<TDelegate> SkipParameterValidations(params bool[] checks)
+        {
+            if (checks == null)
+            {
+                throw new ArgumentNullException(nameof(checks));
+            }
+
+            _skipParameterValidations = checks;
+            return this;
+        }
+
+        public MethodBuilder<TDelegate> SkipParameterValidations(bool check1, bool check2)
+        {
+            var checks = new[] { check1, check2 };
+
+            return SkipParameterValidations(checks);
         }
 
         public MethodBuilder<TDelegate> WithMethodGenerics(params Type[] generics)
@@ -556,6 +576,12 @@ namespace Datadog.Trace.ClrProfiler.Emit
 
             for (var i = 0; i < parameters.Length; i++)
             {
+                var skipParameterValidation = i < _skipParameterValidations.Length && _skipParameterValidations[i];
+                if (skipParameterValidation)
+                {
+                    continue;
+                }
+
                 var candidateParameter = parameters[i];
 
                 var parameterType = candidateParameter.ParameterType;
