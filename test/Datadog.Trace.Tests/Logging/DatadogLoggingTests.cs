@@ -36,9 +36,9 @@ namespace Datadog.Trace.Tests.Logging
         }
 
         [Fact]
-        public void InformationLevel_EnabledBy_Default()
+        public void WarningLevel_EnabledBy_Default()
         {
-            _logger.Information("Information level message");
+            _logger.Warning("Warning level message");
             _logger.Debug("Debug level message");
 
             Assert.Single(_logEventSink.Events);
@@ -47,7 +47,7 @@ namespace Datadog.Trace.Tests.Logging
         [Fact]
         public void DebugLevel_EnabledBy_GlobalSettings()
         {
-            _logger.Information("Information level message");
+            _logger.Warning("Warning level message");
             _logger.Debug("First debug level message");
 
             // Enable Debug-level logging
