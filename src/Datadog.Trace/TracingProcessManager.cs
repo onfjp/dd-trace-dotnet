@@ -69,7 +69,7 @@ namespace Datadog.Trace
             }
             catch (Exception ex)
             {
-                Log.SafeLogError(ex, "Error when attempting to initialize process manager.");
+                Log.Error(ex, "Error when attempting to initialize process manager.");
             }
         }
 
