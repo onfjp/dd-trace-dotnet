@@ -29,7 +29,8 @@ namespace Datadog.Trace.ClrProfiler.IntegrationTests
         {
             SetCallTargetSettings(enableCallTarget, enableInlining);
 
-            int expectedSpanCount = EnvironmentHelper.IsCoreClr() ? 36 : 32;
+            int expectedSpanCount = (EnvironmentHelper.IsCoreClr() ? 36 : 32) + (EnvironmentHelper.IsNet5() ? 22 : 0);
+
             const string expectedOperationName = "http.request";
             const string expectedServiceName = "Samples.HttpMessageHandler-http-client";
 

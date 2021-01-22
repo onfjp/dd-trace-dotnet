@@ -31,10 +31,17 @@ namespace Samples.HttpMessageHandler
                 Console.WriteLine();
                 Console.WriteLine($"Starting HTTP listener at {Url}");
 
-                // send http requests using HttpClient
+                // send async http requests using HttpClient
                 Console.WriteLine();
-                Console.WriteLine("Sending request with HttpClient.");
+                Console.WriteLine("Sending async request with HttpClient.");
                 await RequestHelpers.SendHttpClientRequestsAsync(tracingDisabled, Url, RequestContent);
+
+#if NET5_0
+                // send sync http requests using HttpClient
+                Console.WriteLine();
+                Console.WriteLine("Sending sync request with HttpClient.");
+                RequestHelpers.SendHttpClientRequests(tracingDisabled, Url, RequestContent);
+#endif
 
                 Console.WriteLine();
                 Console.WriteLine("Stopping HTTP listener.");
