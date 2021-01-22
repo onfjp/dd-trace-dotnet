@@ -7,7 +7,6 @@ using System.Threading.Tasks;
 using Datadog.Trace.Configuration;
 using Datadog.Trace.Logging;
 using Datadog.Trace.Util;
-using Datadog.Trace.Vendors.Serilog;
 
 namespace Datadog.Trace
 {
@@ -39,7 +38,7 @@ namespace Datadog.Trace
             DogStatsDMetadata
         };
 
-        private static readonly ILogger Log = DatadogLogging.For<TracingProcessManager>();
+        private static readonly IDatadogLogger Log = DatadogLogging.GetLoggerFor<TracingProcessManager>();
         private static CancellationTokenSource _cancellationTokenSource;
 
         public static void Initialize()
