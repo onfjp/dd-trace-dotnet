@@ -1,5 +1,3 @@
-using Datadog.Trace.Abstractions;
-
 namespace Datadog.Trace
 {
     /// <summary>
@@ -13,10 +11,19 @@ namespace Datadog.Trace
         private readonly IScopeManager _scopeManager;
         private readonly bool _finishOnClose;
 
+        // keep temporarily for backwards compatibility
         internal Scope(Scope parent, Span span, IScopeManager scopeManager, bool finishOnClose)
         {
             Parent = parent;
             Span = span;
+            _scopeManager = scopeManager;
+            _finishOnClose = finishOnClose;
+        }
+
+        internal Scope(IScope parent, ISpan span, IScopeManager scopeManager, bool finishOnClose)
+        {
+            Parent = parent;
+            Span = (Span)span;
             _scopeManager = scopeManager;
             _finishOnClose = finishOnClose;
         }
@@ -28,11 +35,18 @@ namespace Datadog.Trace
 
         /// <summary>
         /// Gets the active span wrapped in this scope
-        /// Proxy to Span without concrete return value
         /// </summary>
         ISpan IScope.Span => Span;
 
-        internal Scope Parent { get; }
+        /// <summary>
+        /// Gets the parent scope
+        /// </summary>
+        IScope IScope.Parent => Parent;
+
+        /// <summary>
+        /// Gets the parent scope
+        /// </summary>
+        internal IScope Parent { get; }
 
         /// <summary>
         /// Closes the current scope and makes its parent scope active

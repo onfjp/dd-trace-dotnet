@@ -17,15 +17,20 @@ namespace Datadog.Trace
 
         public event EventHandler<SpanEventArgs> TraceEnded;
 
-        public abstract Scope Active { get; protected set; }
+        public abstract IScope Active { get; protected set; }
 
-        Scope IScopeRawAccess.Active
+        IScope IScopeRawAccess.Active
         {
             get => Active;
             set => Active = value;
         }
 
         public Scope Activate(Span span, bool finishOnClose)
+        {
+            return (Scope)Activate((ISpan)span, finishOnClose);
+        }
+
+        public IScope Activate(ISpan span, bool finishOnClose)
         {
             var newParent = Active;
             var scope = new Scope(newParent, span, this, finishOnClose);
@@ -46,6 +51,11 @@ namespace Datadog.Trace
         }
 
         public void Close(Scope scope)
+        {
+            Close((IScope)scope);
+        }
+
+        public void Close(IScope scope)
         {
             var current = Active;
             var isRootSpan = scope.Parent == null;
