@@ -14,7 +14,6 @@ namespace Datadog.Trace.ClrProfiler.IntegrationTests
         public HttpMessageHandlerTests(ITestOutputHelper output)
             : base("HttpMessageHandler", output)
         {
-            SetEnvironmentVariable("DD_HttpSocketsHandler_ENABLED", "true");
             SetEnvironmentVariable("DD_HTTP_CLIENT_ERROR_STATUSES", "400-499, 502,-343,11-53, 500-500-200");
             SetServiceVersion("1.0.0");
         }
@@ -22,11 +21,16 @@ namespace Datadog.Trace.ClrProfiler.IntegrationTests
         [Theory]
         [Trait("Category", "EndToEnd")]
         [Trait("RunOnWindows", "True")]
-        [InlineData(false, false)]
-        [InlineData(true, false)]
-        [InlineData(true, true)]
-        public void SubmitsTraces(bool enableCallTarget, bool enableInlining)
+        [InlineData(false, false, false)]
+        [InlineData(false, false, true)]
+        [InlineData(true, false, false)]
+        [InlineData(true, false, true)]
+        [InlineData(true, true, false)]
+        [InlineData(true, true, true)]
+        public void SubmitsTraces(bool enableCallTarget, bool enableInlining, bool enableSocketsHandler)
         {
+            SetEnvironmentVariable("DD_TRACE_DEBUG", "1");
+            SetEnvironmentVariable("DD_HttpSocketsHandler_ENABLED", enableSocketsHandler ? "true" : "false");
             SetCallTargetSettings(enableCallTarget, enableInlining);
 
             int expectedSpanCount = (EnvironmentHelper.IsCoreClr() ? 36 : 32) + (EnvironmentHelper.IsNet5() ? 22 : 0);
@@ -74,11 +78,15 @@ namespace Datadog.Trace.ClrProfiler.IntegrationTests
         [Theory]
         [Trait("Category", "EndToEnd")]
         [Trait("RunOnWindows", "True")]
-        [InlineData(false, false)]
-        [InlineData(true, false)]
-        [InlineData(true, true)]
-        public void TracingDisabled_DoesNotSubmitsTraces(bool enableCallTarget, bool enableInlining)
+        [InlineData(false, false, false)]
+        [InlineData(false, false, true)]
+        [InlineData(true, false, false)]
+        [InlineData(true, false, true)]
+        [InlineData(true, true, false)]
+        [InlineData(true, true, true)]
+        public void TracingDisabled_DoesNotSubmitsTraces(bool enableCallTarget, bool enableInlining, bool enableSocketsHandler)
         {
+            SetEnvironmentVariable("DD_HttpSocketsHandler_ENABLED", enableSocketsHandler ? "true" : "false");
             SetCallTargetSettings(enableCallTarget, enableInlining);
 
             const string expectedOperationName = "http.request";
